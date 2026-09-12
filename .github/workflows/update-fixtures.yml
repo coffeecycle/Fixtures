@@ -1,0 +1,33 @@
+name: Update fixtures
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update fixtures
+        run: python update_fixtures.py
+
+      - name: Save fixtures
+        run: |
+          git config user.name "fixture-bot"
+          git config user.email "fixture-bot@users.noreply.github.com"
+          git add fixtures.json
+          git diff --cached --quiet || git commit -m "Update fixtures"
+          git push
