@@ -142,10 +142,7 @@
       }
 
       .home,
-      .away {
-        font-size: 14px;
-      }
-
+      .away,
       .kickoff {
         font-size: 14px;
       }
@@ -204,9 +201,7 @@ const timezoneSelect = document.getElementById("timezone");
 const fixturesContainer = document.getElementById("fixtures");
 const updatedContainer = document.getElementById("updated");
 
-
 function getTimezone() {
-
   if (timezoneSelect.value === "auto") {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
@@ -214,16 +209,13 @@ function getTimezone() {
   return timezoneSelect.value;
 }
 
-
 function cleanTeamName(name) {
-
-  // Removes scores such as "(2-1)" from old/completed fixtures
-  return name.replace(/\s*\(\d+\s*-\s*\d+\)\s*$/, "").trim();
+  return name
+    .replace(/\s*\(\d+\s*-\s*\d+\)\s*$/, "")
+    .trim();
 }
 
-
 function dateKey(date, timezone) {
-
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     year: "numeric",
@@ -232,9 +224,7 @@ function dateKey(date, timezone) {
   }).format(date);
 }
 
-
 function displayDate(date, timezone) {
-
   return new Intl.DateTimeFormat("en-AU", {
     timeZone: timezone,
     weekday: "long",
@@ -243,9 +233,7 @@ function displayDate(date, timezone) {
   }).format(date);
 }
 
-
 function displayTime(date, timezone) {
-
   return new Intl.DateTimeFormat("en-AU", {
     timeZone: timezone,
     hour: "numeric",
@@ -253,9 +241,7 @@ function displayTime(date, timezone) {
   }).format(date);
 }
 
-
 function renderFixtures() {
-
   const timezone = getTimezone();
 
   fixturesContainer.innerHTML = "";
@@ -267,32 +253,23 @@ function renderFixtures() {
     .filter(match => new Date(match.utcDate) >= now)
     .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
 
-
   if (upcoming.length === 0) {
-
     fixturesContainer.innerHTML =
       '<div class="message">No upcoming fixtures found.</div>';
 
     return;
   }
 
-
   let lastDate = "";
 
-
   upcoming.forEach(match => {
-
     const kickoff = new Date(match.utcDate);
-
     const key = dateKey(kickoff, timezone);
 
-
     if (key !== lastDate) {
-
       const heading = document.createElement("div");
 
       heading.className = "date-heading";
-
       heading.textContent = displayDate(kickoff, timezone);
 
       fixturesContainer.appendChild(heading);
@@ -300,16 +277,12 @@ function renderFixtures() {
       lastDate = key;
     }
 
-
     const fixture = document.createElement("div");
 
     fixture.className = "fixture";
 
-
     const home = cleanTeamName(match.home || "");
-
     const away = cleanTeamName(match.away || "");
-
 
     fixture.innerHTML = `
       <div class="match">
@@ -335,18 +308,12 @@ function renderFixtures() {
       }
     `;
 
-
     fixturesContainer.appendChild(fixture);
-
   });
-
 }
 
-
 async function loadFixtures() {
-
   try {
-
     const response = await fetch(
       "fixtures.json?v=" + Date.now()
     );
@@ -361,53 +328,38 @@ async function loadFixtures() {
 
     renderFixtures();
 
-
     if (data.updated) {
-
       const updated = new Date(data.updated);
 
       updatedContainer.textContent =
         "Fixtures last checked: " +
         updated.toLocaleString();
-
     }
-
   }
 
   catch (error) {
-
     fixturesContainer.innerHTML =
       '<div class="message">Could not load fixture data.</div>';
 
     console.error(error);
-
   }
-
 }
 
-
 timezoneSelect.addEventListener("change", function () {
-
   localStorage.setItem(
     "fixtureTimezone",
     timezoneSelect.value
   );
 
   renderFixtures();
-
 });
-
 
 const savedTimezone =
   localStorage.getItem("fixtureTimezone");
 
-
 if (savedTimezone) {
-
   timezoneSelect.value = savedTimezone;
-
 }
-
 
 loadFixtures();
 
