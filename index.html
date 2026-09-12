@@ -26,7 +26,7 @@
     }
 
     h1 {
-      margin-top: 10px;
+      margin: 10px 0 24px;
       font-size: 32px;
     }
 
@@ -46,7 +46,7 @@
       display: block;
       margin-bottom: 6px;
       font-size: 14px;
-      color: #ccc;
+      color: #bbb;
     }
 
     select {
@@ -54,10 +54,20 @@
       min-height: 46px;
       padding: 10px;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: 7px;
       border: 1px solid #555;
       background: #222;
       color: white;
+    }
+
+    .date-heading {
+      margin: 26px 0 10px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid #444;
+      font-size: 15px;
+      font-weight: bold;
+      color: #ccc;
+      text-transform: uppercase;
     }
 
     .fixture {
@@ -65,12 +75,6 @@
       border: 1px solid #333;
       border-radius: 10px;
       padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .competition {
-      font-size: 13px;
-      color: #aaa;
       margin-bottom: 10px;
     }
 
@@ -83,15 +87,37 @@
 
     .home {
       text-align: right;
+      font-weight: 600;
     }
 
     .away {
       text-align: left;
+      font-weight: 600;
     }
 
     .kickoff {
+      text-align: center;
       font-weight: bold;
       white-space: nowrap;
+    }
+
+    .venue {
+      margin-top: 10px;
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .message {
+      color: #aaa;
+      padding: 20px 0;
+    }
+
+    .updated {
+      margin-top: 30px;
+      font-size: 11px;
+      color: #666;
+      text-align: center;
     }
 
     @media (max-width: 600px) {
@@ -108,15 +134,18 @@
       }
 
       .fixture {
-        padding: 14px 10px;
+        padding: 14px 8px;
       }
 
       .match {
-        gap: 8px;
+        gap: 7px;
       }
 
       .home,
-      .away,
+      .away {
+        font-size: 14px;
+      }
+
       .kickoff {
         font-size: 14px;
       }
@@ -126,75 +155,263 @@
 
 <body>
 
-  <div class="page">
+<div class="page">
 
-    <h1>Club Fixtures</h1>
+  <h1>Club Fixtures</h1>
 
-    <div class="controls">
+  <div class="controls">
 
-      <div>
-        <label for="club">Club</label>
-        <select id="club">
-          <option>Arsenal</option>
-          <option>Liverpool</option>
-          <option>Barcelona</option>
-        </select>
-      </div>
+    <div>
+      <label for="club">Club</label>
 
-      <div>
-        <label for="timezone">Timezone</label>
-        <select id="timezone">
-          <option>Sydney</option>
-          <option>London</option>
-          <option>New York</option>
-        </select>
-      </div>
-
+      <select id="club">
+        <option value="Arsenal">Arsenal</option>
+      </select>
     </div>
 
-    <h2>Upcoming fixtures</h2>
+    <div>
+      <label for="timezone">Timezone</label>
 
-    <div class="fixture">
-      <div class="competition">Premier League · Sun 13 Sep</div>
-
-      <div class="match">
-        <div class="home">Sunderland</div>
-        <div class="kickoff">5:00 AM</div>
-        <div class="away">Arsenal</div>
-      </div>
-    </div>
-
-    <div class="fixture">
-      <div class="competition">Premier League · Sun 20 Sep</div>
-
-      <div class="match">
-        <div class="home">Brighton</div>
-        <div class="kickoff">12:00 AM</div>
-        <div class="away">Arsenal</div>
-      </div>
-    </div>
-
-    <div class="fixture">
-      <div class="competition">Premier League · Sat 10 Oct</div>
-
-      <div class="match">
-        <div class="home">Arsenal</div>
-        <div class="kickoff">10:30 PM</div>
-        <div class="away">Leeds</div>
-      </div>
-    </div>
-
-    <div class="fixture">
-      <div class="competition">Champions League · Wed 14 Oct</div>
-
-      <div class="match">
-        <div class="home">Arsenal</div>
-        <div class="kickoff">6:00 AM</div>
-        <div class="away">Lille</div>
-      </div>
+      <select id="timezone">
+        <option value="auto">Automatic</option>
+        <option value="Australia/Sydney">Sydney</option>
+        <option value="Europe/London">London</option>
+        <option value="America/New_York">New York</option>
+        <option value="America/Los_Angeles">Los Angeles</option>
+        <option value="Europe/Paris">Paris</option>
+        <option value="Asia/Singapore">Singapore</option>
+        <option value="Asia/Tokyo">Tokyo</option>
+      </select>
     </div>
 
   </div>
+
+  <h2>Upcoming fixtures</h2>
+
+  <div id="fixtures">
+    <div class="message">Loading fixtures...</div>
+  </div>
+
+  <div id="updated" class="updated"></div>
+
+</div>
+
+<script>
+
+let fixtureData = [];
+
+const timezoneSelect = document.getElementById("timezone");
+const fixturesContainer = document.getElementById("fixtures");
+const updatedContainer = document.getElementById("updated");
+
+
+function getTimezone() {
+
+  if (timezoneSelect.value === "auto") {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
+  return timezoneSelect.value;
+}
+
+
+function cleanTeamName(name) {
+
+  // Removes scores such as "(2-1)" from old/completed fixtures
+  return name.replace(/\s*\(\d+\s*-\s*\d+\)\s*$/, "").trim();
+}
+
+
+function dateKey(date, timezone) {
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
+
+function displayDate(date, timezone) {
+
+  return new Intl.DateTimeFormat("en-AU", {
+    timeZone: timezone,
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(date);
+}
+
+
+function displayTime(date, timezone) {
+
+  return new Intl.DateTimeFormat("en-AU", {
+    timeZone: timezone,
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+}
+
+
+function renderFixtures() {
+
+  const timezone = getTimezone();
+
+  fixturesContainer.innerHTML = "";
+
+  const now = new Date();
+
+  const upcoming = fixtureData
+    .filter(match => match.utcDate)
+    .filter(match => new Date(match.utcDate) >= now)
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+
+
+  if (upcoming.length === 0) {
+
+    fixturesContainer.innerHTML =
+      '<div class="message">No upcoming fixtures found.</div>';
+
+    return;
+  }
+
+
+  let lastDate = "";
+
+
+  upcoming.forEach(match => {
+
+    const kickoff = new Date(match.utcDate);
+
+    const key = dateKey(kickoff, timezone);
+
+
+    if (key !== lastDate) {
+
+      const heading = document.createElement("div");
+
+      heading.className = "date-heading";
+
+      heading.textContent = displayDate(kickoff, timezone);
+
+      fixturesContainer.appendChild(heading);
+
+      lastDate = key;
+    }
+
+
+    const fixture = document.createElement("div");
+
+    fixture.className = "fixture";
+
+
+    const home = cleanTeamName(match.home || "");
+
+    const away = cleanTeamName(match.away || "");
+
+
+    fixture.innerHTML = `
+      <div class="match">
+
+        <div class="home">
+          ${home}
+        </div>
+
+        <div class="kickoff">
+          ${displayTime(kickoff, timezone)}
+        </div>
+
+        <div class="away">
+          ${away}
+        </div>
+
+      </div>
+
+      ${
+        match.location
+          ? `<div class="venue">${match.location}</div>`
+          : ""
+      }
+    `;
+
+
+    fixturesContainer.appendChild(fixture);
+
+  });
+
+}
+
+
+async function loadFixtures() {
+
+  try {
+
+    const response = await fetch(
+      "fixtures.json?v=" + Date.now()
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not load fixtures");
+    }
+
+    const data = await response.json();
+
+    fixtureData = data.matches || [];
+
+    renderFixtures();
+
+
+    if (data.updated) {
+
+      const updated = new Date(data.updated);
+
+      updatedContainer.textContent =
+        "Fixtures last checked: " +
+        updated.toLocaleString();
+
+    }
+
+  }
+
+  catch (error) {
+
+    fixturesContainer.innerHTML =
+      '<div class="message">Could not load fixture data.</div>';
+
+    console.error(error);
+
+  }
+
+}
+
+
+timezoneSelect.addEventListener("change", function () {
+
+  localStorage.setItem(
+    "fixtureTimezone",
+    timezoneSelect.value
+  );
+
+  renderFixtures();
+
+});
+
+
+const savedTimezone =
+  localStorage.getItem("fixtureTimezone");
+
+
+if (savedTimezone) {
+
+  timezoneSelect.value = savedTimezone;
+
+}
+
+
+loadFixtures();
+
+</script>
 
 </body>
 </html>
