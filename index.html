@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Club Fixtures</title>
+  <title>Arsenal Fixtures</title>
 
   <style>
     * {
@@ -20,7 +20,7 @@
 
     .page {
       width: 100%;
-      max-width: 800px;
+      max-width: 850px;
       margin: 0 auto;
       padding: 16px;
     }
@@ -30,29 +30,23 @@
       font-size: 32px;
     }
 
-    h2 {
-      margin-top: 30px;
-      font-size: 22px;
-    }
-
     .controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 30px;
+      margin-bottom: 14px;
     }
 
     label {
       display: block;
       margin-bottom: 6px;
-      font-size: 14px;
-      color: #bbb;
+      font-size: 13px;
+      color: #aaa;
     }
 
-    select {
-      width: 100%;
+    select,
+    button {
       min-height: 46px;
-      padding: 10px;
       font-size: 16px;
       border-radius: 7px;
       border: 1px solid #555;
@@ -60,13 +54,34 @@
       color: white;
     }
 
+    select {
+      width: 100%;
+      padding: 10px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    button {
+      padding: 0 15px;
+      cursor: pointer;
+    }
+
+    button.active {
+      background: white;
+      color: #111;
+    }
+
     .date-heading {
-      margin: 26px 0 10px;
+      margin: 27px 0 10px;
       padding-bottom: 7px;
       border-bottom: 1px solid #444;
-      font-size: 15px;
+      color: #bbb;
+      font-size: 14px;
       font-weight: bold;
-      color: #ccc;
       text-transform: uppercase;
     }
 
@@ -78,46 +93,58 @@
       margin-bottom: 10px;
     }
 
+    .fixture.completed {
+      opacity: 0.7;
+    }
+
     .match {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      align-items: center;
       gap: 12px;
+      align-items: center;
     }
 
     .home {
       text-align: right;
-      font-weight: 600;
     }
 
     .away {
       text-align: left;
+    }
+
+    .home,
+    .away {
       font-weight: 600;
     }
 
-    .kickoff {
+    .middle {
+      min-width: 72px;
       text-align: center;
       font-weight: bold;
       white-space: nowrap;
     }
 
+    .score {
+      font-size: 19px;
+    }
+
     .venue {
-      margin-top: 10px;
+      margin-top: 9px;
       text-align: center;
-      color: #999;
-      font-size: 12px;
+      color: #777;
+      font-size: 11px;
     }
 
     .message {
-      color: #aaa;
       padding: 20px 0;
+      color: #aaa;
     }
 
     .updated {
-      margin-top: 30px;
-      font-size: 11px;
-      color: #666;
+      margin: 35px 0 10px;
       text-align: center;
+      color: #666;
+      font-size: 11px;
     }
 
     @media (max-width: 600px) {
@@ -133,6 +160,15 @@
         grid-template-columns: 1fr;
       }
 
+      .buttons {
+        flex-wrap: wrap;
+      }
+
+      button {
+        flex: 1;
+        min-width: 120px;
+      }
+
       .fixture {
         padding: 14px 8px;
       }
@@ -142,8 +178,12 @@
       }
 
       .home,
-      .away,
-      .kickoff {
+      .away {
+        font-size: 14px;
+      }
+
+      .middle {
+        min-width: 58px;
         font-size: 14px;
       }
     }
@@ -154,17 +194,9 @@
 
 <div class="page">
 
-  <h1>Club Fixtures</h1>
+  <h1>Arsenal Fixtures</h1>
 
   <div class="controls">
-
-    <div>
-      <label for="club">Club</label>
-
-      <select id="club">
-        <option value="Arsenal">Arsenal</option>
-      </select>
-    </div>
 
     <div>
       <label for="timezone">Timezone</label>
@@ -173,17 +205,37 @@
         <option value="auto">Automatic</option>
         <option value="Australia/Sydney">Sydney</option>
         <option value="Europe/London">London</option>
+        <option value="Europe/Paris">Paris</option>
         <option value="America/New_York">New York</option>
         <option value="America/Los_Angeles">Los Angeles</option>
-        <option value="Europe/Paris">Paris</option>
         <option value="Asia/Singapore">Singapore</option>
         <option value="Asia/Tokyo">Tokyo</option>
       </select>
     </div>
 
+    <div>
+      <label for="view">Fixtures</label>
+
+      <select id="view">
+        <option value="all">All fixtures</option>
+        <option value="upcoming">Upcoming only</option>
+        <option value="results">Results only</option>
+      </select>
+    </div>
+
   </div>
 
-  <h2>Upcoming fixtures</h2>
+  <div class="buttons">
+
+    <button id="hideCompleted">
+      Hide completed
+    </button>
+
+    <button id="timeFormat">
+      12 hour
+    </button>
+
+  </div>
 
   <div id="fixtures">
     <div class="message">Loading fixtures...</div>
@@ -193,107 +245,270 @@
 
 </div>
 
+
 <script>
 
 let fixtureData = [];
 
-const timezoneSelect = document.getElementById("timezone");
-const fixturesContainer = document.getElementById("fixtures");
-const updatedContainer = document.getElementById("updated");
+let hideCompleted = false;
+let use24Hour = false;
+
+const timezoneSelect =
+  document.getElementById("timezone");
+
+const viewSelect =
+  document.getElementById("view");
+
+const hideCompletedButton =
+  document.getElementById("hideCompleted");
+
+const timeFormatButton =
+  document.getElementById("timeFormat");
+
+const fixturesContainer =
+  document.getElementById("fixtures");
+
+const updatedContainer =
+  document.getElementById("updated");
+
 
 function getTimezone() {
+
   if (timezoneSelect.value === "auto") {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return Intl.DateTimeFormat()
+      .resolvedOptions()
+      .timeZone;
   }
 
   return timezoneSelect.value;
 }
 
+
+function getScore(name) {
+
+  const match =
+    name.match(/\((\d+)\s*-\s*(\d+)\)\s*$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    home: match[1],
+    away: match[2]
+  };
+}
+
+
 function cleanTeamName(name) {
+
   return name
     .replace(/\s*\(\d+\s*-\s*\d+\)\s*$/, "")
     .trim();
 }
 
-function dateKey(date, timezone) {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(date);
+
+function getMatchScore(match) {
+
+  const homeScore =
+    getScore(match.home || "");
+
+  const awayScore =
+    getScore(match.away || "");
+
+  return homeScore || awayScore;
 }
+
+
+function isCompleted(match) {
+
+  if (getMatchScore(match)) {
+    return true;
+  }
+
+  if (!match.utcDate) {
+    return false;
+  }
+
+  return new Date(match.utcDate) < new Date();
+}
+
+
+function dateKey(date, timezone) {
+
+  return new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  ).format(date);
+}
+
 
 function displayDate(date, timezone) {
-  return new Intl.DateTimeFormat("en-AU", {
-    timeZone: timezone,
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  }).format(date);
+
+  return new Intl.DateTimeFormat(
+    "en-AU",
+    {
+      timeZone: timezone,
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  ).format(date);
 }
+
 
 function displayTime(date, timezone) {
-  return new Intl.DateTimeFormat("en-AU", {
-    timeZone: timezone,
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(date);
+
+  return new Intl.DateTimeFormat(
+    "en-AU",
+    {
+      timeZone: timezone,
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: !use24Hour
+    }
+  ).format(date);
 }
 
+
 function renderFixtures() {
-  const timezone = getTimezone();
+
+  const timezone =
+    getTimezone();
 
   fixturesContainer.innerHTML = "";
 
-  const now = new Date();
-
-  const upcoming = fixtureData
+  let matches = fixtureData
     .filter(match => match.utcDate)
-    .filter(match => new Date(match.utcDate) >= now)
-    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+    .sort(
+      (a, b) =>
+        new Date(a.utcDate) -
+        new Date(b.utcDate)
+    );
 
-  if (upcoming.length === 0) {
+
+  if (viewSelect.value === "upcoming") {
+
+    matches =
+      matches.filter(
+        match => !isCompleted(match)
+      );
+  }
+
+
+  if (viewSelect.value === "results") {
+
+    matches =
+      matches.filter(
+        match => isCompleted(match)
+      );
+  }
+
+
+  if (hideCompleted) {
+
+    matches =
+      matches.filter(
+        match => !isCompleted(match)
+      );
+  }
+
+
+  if (matches.length === 0) {
+
     fixturesContainer.innerHTML =
-      '<div class="message">No upcoming fixtures found.</div>';
+      '<div class="message">No fixtures to show.</div>';
 
     return;
   }
 
+
   let lastDate = "";
 
-  upcoming.forEach(match => {
-    const kickoff = new Date(match.utcDate);
-    const key = dateKey(kickoff, timezone);
+
+  matches.forEach(match => {
+
+    const kickoff =
+      new Date(match.utcDate);
+
+    const completed =
+      isCompleted(match);
+
+    const score =
+      getMatchScore(match);
+
+    const key =
+      dateKey(kickoff, timezone);
+
 
     if (key !== lastDate) {
-      const heading = document.createElement("div");
 
-      heading.className = "date-heading";
-      heading.textContent = displayDate(kickoff, timezone);
+      const heading =
+        document.createElement("div");
 
-      fixturesContainer.appendChild(heading);
+      heading.className =
+        "date-heading";
+
+      heading.textContent =
+        displayDate(kickoff, timezone);
+
+      fixturesContainer
+        .appendChild(heading);
 
       lastDate = key;
     }
 
-    const fixture = document.createElement("div");
 
-    fixture.className = "fixture";
+    const fixture =
+      document.createElement("div");
 
-    const home = cleanTeamName(match.home || "");
-    const away = cleanTeamName(match.away || "");
+    fixture.className =
+      completed
+        ? "fixture completed"
+        : "fixture";
+
+
+    const home =
+      cleanTeamName(match.home || "");
+
+    const away =
+      cleanTeamName(match.away || "");
+
+
+    let middle;
+
+
+    if (score) {
+
+      middle =
+        `<div class="middle score">
+          ${score.home}–${score.away}
+        </div>`;
+
+    } else {
+
+      middle =
+        `<div class="middle">
+          ${displayTime(kickoff, timezone)}
+        </div>`;
+    }
+
 
     fixture.innerHTML = `
+
       <div class="match">
 
         <div class="home">
           ${home}
         </div>
 
-        <div class="kickoff">
-          ${displayTime(kickoff, timezone)}
-        </div>
+        ${middle}
 
         <div class="away">
           ${away}
@@ -303,63 +518,195 @@ function renderFixtures() {
 
       ${
         match.location
-          ? `<div class="venue">${match.location}</div>`
+          ? `<div class="venue">
+              ${match.location}
+             </div>`
           : ""
       }
+
     `;
 
-    fixturesContainer.appendChild(fixture);
+
+    fixturesContainer
+      .appendChild(fixture);
+
   });
+
 }
 
+
 async function loadFixtures() {
+
   try {
-    const response = await fetch(
-      "fixtures.json?v=" + Date.now()
-    );
+
+    const response =
+      await fetch(
+        "fixtures.json?v=" +
+        Date.now()
+      );
+
 
     if (!response.ok) {
-      throw new Error("Could not load fixtures");
+
+      throw new Error(
+        "Could not load fixtures"
+      );
     }
 
-    const data = await response.json();
 
-    fixtureData = data.matches || [];
+    const data =
+      await response.json();
+
+
+    fixtureData =
+      data.matches || [];
+
 
     renderFixtures();
 
+
     if (data.updated) {
-      const updated = new Date(data.updated);
+
+      const updated =
+        new Date(data.updated);
+
 
       updatedContainer.textContent =
         "Fixtures last checked: " +
         updated.toLocaleString();
+
     }
+
   }
 
   catch (error) {
+
     fixturesContainer.innerHTML =
       '<div class="message">Could not load fixture data.</div>';
 
     console.error(error);
+
   }
+
 }
 
-timezoneSelect.addEventListener("change", function () {
-  localStorage.setItem(
-    "fixtureTimezone",
-    timezoneSelect.value
-  );
 
-  renderFixtures();
-});
+timezoneSelect.addEventListener(
+  "change",
+  function () {
+
+    localStorage.setItem(
+      "fixtureTimezone",
+      timezoneSelect.value
+    );
+
+    renderFixtures();
+
+  }
+);
+
+
+viewSelect.addEventListener(
+  "change",
+  function () {
+
+    renderFixtures();
+
+  }
+);
+
+
+hideCompletedButton.addEventListener(
+  "click",
+  function () {
+
+    hideCompleted =
+      !hideCompleted;
+
+
+    hideCompletedButton.classList.toggle(
+      "active",
+      hideCompleted
+    );
+
+
+    hideCompletedButton.textContent =
+      hideCompleted
+        ? "Show completed"
+        : "Hide completed";
+
+
+    renderFixtures();
+
+  }
+);
+
+
+timeFormatButton.addEventListener(
+  "click",
+  function () {
+
+    use24Hour =
+      !use24Hour;
+
+
+    timeFormatButton.classList.toggle(
+      "active",
+      use24Hour
+    );
+
+
+    timeFormatButton.textContent =
+      use24Hour
+        ? "24 hour"
+        : "12 hour";
+
+
+    localStorage.setItem(
+      "fixture24Hour",
+      use24Hour
+    );
+
+
+    renderFixtures();
+
+  }
+);
+
 
 const savedTimezone =
-  localStorage.getItem("fixtureTimezone");
+  localStorage.getItem(
+    "fixtureTimezone"
+  );
+
 
 if (savedTimezone) {
-  timezoneSelect.value = savedTimezone;
+
+  timezoneSelect.value =
+    savedTimezone;
+
 }
+
+
+const saved24Hour =
+  localStorage.getItem(
+    "fixture24Hour"
+  );
+
+
+if (saved24Hour === "true") {
+
+  use24Hour = true;
+
+  timeFormatButton.classList.add(
+    "active"
+  );
+
+  timeFormatButton.textContent =
+    "24 hour";
+
+}
+
 
 loadFixtures();
 
