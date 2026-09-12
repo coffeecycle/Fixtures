@@ -5,6 +5,9 @@ from zoneinfo import ZoneInfo
 
 ICS_URL = "https://ics.fixtur.es/v2/arsenal.ics"
 
+SEASON_START = datetime(2026, 8, 1, tzinfo=timezone.utc)
+SEASON_END = datetime(2027, 7, 31, 23, 59, tzinfo=timezone.utc)
+
 
 def clean_text(text):
     return (
@@ -49,7 +52,6 @@ request = urllib.request.Request(
 
 raw = urllib.request.urlopen(request).read().decode("utf-8", errors="ignore")
 
-# Join folded ICS lines
 lines = []
 
 for line in raw.splitlines():
@@ -84,9 +86,6 @@ for line in lines:
     elif key == "SUMMARY":
         current["summary"] = clean_text(value)
 
-    elif key == "DESCRIPTION":
-        current["description"] = clean_text(value)
-
     elif key == "LOCATION":
         current["location"] = clean_text(value)
 
@@ -98,44 +97,45 @@ fixtures = []
 
 for event in events:
 
+    dt = event.get("date")
+
+    if not dt:
+        continue
+
+    dt_utc = dt.astimezone(timezone.utc)
+
+    if not (SEASON_START <= dt_utc <= SEASON_END):
+        continue
+
     summary = event.get("summary", "")
 
     if not summary:
         continue
 
-    # Fixtur.es normally uses "Home - Away"
     if " - " in summary:
         home, away = summary.split(" - ", 1)
     elif " v " in summary:
         home, away = summary.split(" v ", 1)
     else:
-        home = summary
-        away = ""
-
-    dt = event.get("date")
-
-    if dt:
-        utc_date = dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-    else:
-        utc_date = None
+        continue
 
     fixtures.append({
         "home": home.strip(),
         "away": away.strip(),
-        "utcDate": utc_date,
-        "competition": event.get("description", ""),
+        "utcDate": dt_utc.isoformat().replace("+00:00", "Z"),
         "location": event.get("location", ""),
         "status": event.get("status", "")
     })
 
 
-fixtures.sort(key=lambda x: x["utcDate"] or "")
+fixtures.sort(key=lambda x: x["utcDate"])
 
 with open("fixtures.json", "w", encoding="utf-8") as f:
     json.dump(
         {
             "updated": datetime.now(timezone.utc).isoformat(),
             "club": "Arsenal",
+            "season": "2026/27",
             "matches": fixtures
         },
         f,
