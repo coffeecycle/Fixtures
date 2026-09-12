@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,37 +7,114 @@
   <title>Club Fixtures</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
       background: #111;
       color: white;
+      font-family: Arial, sans-serif;
     }
 
     .page {
-      max-width: 700px;
-      margin: auto;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
     }
 
     h1 {
+      margin-top: 10px;
       font-size: 32px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #ccc;
     }
 
     select {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      min-height: 46px;
+      padding: 10px;
       font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #222;
+      color: white;
+    }
+
+    .fixture {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .competition {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .match {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .home {
+      text-align: right;
+    }
+
+    .away {
+      text-align: left;
+    }
+
+    .kickoff {
+      font-weight: bold;
+      white-space: nowrap;
     }
 
     @media (max-width: 600px) {
-      body {
+      .page {
         padding: 12px;
       }
 
       h1 {
         font-size: 26px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .fixture {
+        padding: 14px 10px;
+      }
+
+      .match {
+        grid-template-columns: 1fr auto 1fr;
+        gap: 8px;
+      }
+
+      .home,
+      .away,
+      .kickoff {
+        font-size: 14px;
       }
     }
   </style>
@@ -49,25 +126,49 @@
 
     <h1>Club Fixtures</h1>
 
-    <p>Club</p>
+    <div class="controls">
 
-    <select>
-      <option>Arsenal</option>
-      <option>Liverpool</option>
-      <option>Barcelona</option>
-    </select>
+      <div>
+        <label for="club">Club</label>
+        <select id="club">
+          <option>Arsenal</option>
+          <option>Liverpool</option>
+          <option>Barcelona</option>
+        </select>
+      </div>
 
-    <p>Timezone</p>
+      <div>
+        <label for="timezone">Timezone</label>
+        <select id="timezone">
+          <option>Sydney</option>
+          <option>London</option>
+          <option>New York</option>
+        </select>
+      </div>
 
-    <select>
-      <option>Sydney</option>
-      <option>London</option>
-      <option>New York</option>
-    </select>
+    </div>
 
     <h2>Upcoming fixtures</h2>
 
-    <p>Fixtures will appear here.</p>
+    <div class="fixture">
+      <div class="competition">Premier League</div>
+
+      <div class="match">
+        <div class="home">Arsenal</div>
+        <div class="kickoff">7:30 PM</div>
+        <div class="away">Liverpool</div>
+      </div>
+    </div>
+
+    <div class="fixture">
+      <div class="competition">Champions League</div>
+
+      <div class="match">
+        <div class="home">Barcelona</div>
+        <div class="kickoff">8:00 PM</div>
+        <div class="away">Arsenal</div>
+      </div>
+    </div>
 
   </div>
 
