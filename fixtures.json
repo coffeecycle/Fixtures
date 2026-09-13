@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13T06:31:44.165608+00:00",
+  "updated": "2026-09-13T07:22:35.445676+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -61,7 +61,7 @@
     },
     {
       "home": "Sunderland",
-      "away": "Arsenal",
+      "away": "Arsenal (0-2)",
       "utcDate": "2026-09-12T19:00:00Z",
       "location": "Stadium of Light",
       "status": "CONFIRMED"
