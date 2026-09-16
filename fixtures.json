@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-16T09:24:38.045918+00:00",
+  "updated": "2026-09-16T10:25:21.300905+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -68,7 +68,7 @@
     },
     {
       "home": "Ipswich Town",
-      "away": "Arsenal [LC]",
+      "away": "Arsenal [LC] (2-4)",
       "utcDate": "2026-09-15T19:00:00Z",
       "location": "",
       "status": "CONFIRMED"
