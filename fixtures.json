@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-20T06:27:18.979565+00:00",
+  "updated": "2026-09-20T07:22:24.677879+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -75,7 +75,7 @@
     },
     {
       "home": "Brighton & Hove Albion FC",
-      "away": "Arsenal",
+      "away": "Arsenal (3-0)",
       "utcDate": "2026-09-19T14:00:00Z",
       "location": "American Express",
       "status": "CONFIRMED"
@@ -118,7 +118,7 @@
     {
       "home": "Fleetwood Town FC",
       "away": "Arsenal [LC]",
-      "utcDate": "2026-10-27T00:00:00Z",
+      "utcDate": "2026-10-27T20:00:00Z",
       "location": "",
       "status": "CONFIRMED"
     },
