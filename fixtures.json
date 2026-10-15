@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-15T05:52:32.725662+00:00",
+  "updated": "2026-10-15T11:22:10.495236+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -89,7 +89,7 @@
     },
     {
       "home": "Arsenal",
-      "away": "Lille [CL]",
+      "away": "Lille [CL] (3-0)",
       "utcDate": "2026-10-13T19:00:00Z",
       "location": "Emirates",
       "status": "CONFIRMED"
