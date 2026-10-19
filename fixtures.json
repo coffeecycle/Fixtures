@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19T06:10:20.862560+00:00",
+  "updated": "2026-10-19T13:04:19.011455+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -96,7 +96,7 @@
     },
     {
       "home": "Nottingham Forest",
-      "away": "Arsenal",
+      "away": "Arsenal (0-1)",
       "utcDate": "2026-10-18T15:30:00Z",
       "location": "The City Ground",
       "status": "CONFIRMED"
