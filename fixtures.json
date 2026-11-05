@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05T06:38:09.104805+00:00",
+  "updated": "2026-11-05T15:25:49.773288+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -131,7 +131,7 @@
     },
     {
       "home": "SK Slavia Praha",
-      "away": "Arsenal [CL]",
+      "away": "Arsenal [CL] (1-2)",
       "utcDate": "2026-11-04T20:00:00Z",
       "location": "Fortuna Arena",
       "status": "CONFIRMED"
