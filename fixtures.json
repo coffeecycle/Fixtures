@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-22T03:05:23.761994+00:00",
+  "updated": "2026-11-22T11:12:48.220541+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -145,7 +145,7 @@
     },
     {
       "home": "Newcastle United",
-      "away": "Arsenal",
+      "away": "Arsenal (2-2)",
       "utcDate": "2026-11-21T17:30:00Z",
       "location": "St. James' Park",
       "status": "CONFIRMED"
