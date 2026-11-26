@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-26T02:47:57.057222+00:00",
+  "updated": "2026-11-26T12:20:09.902591+00:00",
   "club": "Arsenal",
   "season": "2026/27",
   "matches": [
@@ -152,7 +152,7 @@
     },
     {
       "home": "Arsenal",
-      "away": "Borussia Dortmund [CL]",
+      "away": "Borussia Dortmund [CL] (1-1)",
       "utcDate": "2026-11-24T20:00:00Z",
       "location": "Emirates",
       "status": "CONFIRMED"
